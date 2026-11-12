@@ -4,7 +4,8 @@
 #
 # Runs when:
 #   - you start it by hand (Actions → "Export macOS build" → Run workflow; you can pick the version folder),
-#   - a version tag such as v0.8.4 is pushed (builds app_v0.8.4).
+#   - a version tag such as v0.8.4 is pushed (builds app_v0.8.4),
+#   - a version folder (app_v*) changes on main (builds the newest version folder).
 name: Export macOS build
 
 on:
@@ -16,6 +17,8 @@ on:
         default: "app_v0.8.4"
   push:
     tags: ["v*"]
+    branches: ["main"]
+    paths: ["app_v*/**", ".github/workflows/export-macos.yml"]
 
 env:
   GODOT_VERSION: "4.7"
@@ -34,6 +37,10 @@ jobs:
           APP_DIR="${{ github.event.inputs.app_dir }}"
           if [ -z "$APP_DIR" ] && [ "${{ github.ref_type }}" = "tag" ]; then
             APP_DIR="app_${{ github.ref_name }}"
+          fi
+          if [ -z "$APP_DIR" ]; then
+            # newest version folder (version-sorted), e.g. app_v0.8.4
+            APP_DIR=$(ls -d app_v*/ | sed 's#/$##' | sort -V | tail -1)
           fi
           [ -z "$APP_DIR" ] && APP_DIR="$DEFAULT_APP_DIR"
           test -f "$APP_DIR/main.tscn" || { echo "No $APP_DIR/main.tscn in the repository"; exit 1; }
