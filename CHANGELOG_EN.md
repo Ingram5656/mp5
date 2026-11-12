@@ -4,9 +4,17 @@ Project: `E:\mp-5` (Godot 4.7). Newest version first.
 English translation of the Chinese changelog (created 2026-11-12 for the week-6 report; the original is unchanged).
 Checksums, base versions and validation status are recorded in the full version record.
 
-**Current version: v0.8.3.** Run `app_v0.8.3/main.tscn` (F6). Comparison build: v0.8.2.1 (later versions do not build on it).
+**Current version: v0.8.4.** Run `app_v0.8.4/main.tscn` (F6). Comparison build: v0.8.2.1 (later versions do not build on it).
 
 ---
+
+## v0.8.4 — 2026-11-12 · Balloon sounds; Quit training
+- Balloon game sounds: an inflating sound while the force is rising (pitch rises as the balloon grows, fades
+  out when the force stops rising); leak, pop, tie and the carrot floating away. Sources and licences:
+  `assets/sfx/音效对照.md` (the leak sound is CC BY 4.0 and needs a credit).
+- "Quit training" button next to "Sensor check" on the selection page; a dialog asks first (Cancel is the
+  default, Esc = Cancel), then the program saves and closes.
+- Synced to GitHub; a macOS build is produced automatically.
 
 ## v0.8.3 — 2026-11-10 · Keyboard combinations (part 1)
 - Without a sensor, the keyboard can now simulate every force pattern; keys can be held together:

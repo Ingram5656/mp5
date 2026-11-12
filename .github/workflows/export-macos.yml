@@ -4,25 +4,22 @@
 #
 # Runs when:
 #   - you start it by hand (Actions → "Export macOS build" → Run workflow; you can pick the version folder),
-#   - a version tag such as v0.8.4 is pushed,
-#   - this file itself is changed.
+#   - a version tag such as v0.8.4 is pushed (builds app_v0.8.4).
 name: Export macOS build
 
 on:
   workflow_dispatch:
     inputs:
       app_dir:
-        description: "Version folder to build (e.g. app_v0.8.3)"
+        description: "Version folder to build (e.g. app_v0.8.4)"
         required: true
-        default: "app_v0.8.3"
+        default: "app_v0.8.4"
   push:
     tags: ["v*"]
-    paths: [".github/workflows/export-macos.yml"]
-    branches: ["main"]
 
 env:
   GODOT_VERSION: "4.7"
-  DEFAULT_APP_DIR: "app_v0.8.3"
+  DEFAULT_APP_DIR: "app_v0.8.4"
   BUNDLE_ID: "uk.ac.dundee.mp5"
 
 jobs:
