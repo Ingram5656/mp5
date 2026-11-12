@@ -59,10 +59,12 @@ jobs:
       - name: Point the build at ${{ env.APP_DIR }} (build machine only)
         run: |
           sed -i "s#^run/main_scene=.*#run/main_scene=\"res://${APP_DIR}/main.tscn\"#" project.godot
+          # Apple-silicon Macs need ETC2/ASTC textures (universal build)
+          sed -i "s#^\[rendering\]#[rendering]\n\ntextures/vram_compression/import_etc2_astc=true#" project.godot
           sed -i "s#^application/bundle_identifier=.*#application/bundle_identifier=\"${BUNDLE_ID}\"#" export_presets.cfg
           sed -i "s#^application/short_version=.*#application/short_version=\"${APP_VERSION#v}\"#" export_presets.cfg
           sed -i "s#^application/version=.*#application/version=\"${APP_VERSION#v}\"#" export_presets.cfg
-          grep -n "main_scene" project.godot
+          grep -nE "main_scene|import_etc2_astc" project.godot
           grep -nE "bundle_identifier|short_version|^application/version" export_presets.cfg
 
       - name: Import resources
