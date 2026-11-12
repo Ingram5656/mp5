@@ -15,6 +15,8 @@ Checksums, base versions and validation status are recorded in the full version 
 - "Quit training" button next to "Sensor check" on the selection page; a dialog asks first (Cancel is the
   default, Esc = Cancel), then the program saves and closes.
 - Synced to GitHub; a macOS build is produced automatically.
+- Revision (same day): larger grade letter on the report; timed rounds shortened from 90 s to 60 s;
+  a tick-tock countdown sound plays for the last 10 s.
 
 ## v0.8.3 — 2026-11-10 · Keyboard combinations (part 1)
 - Without a sensor, the keyboard can now simulate every force pattern; keys can be held together:

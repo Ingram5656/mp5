@@ -20,6 +20,8 @@ extends Node
 ##   carrot_snap      — the carrot snaps           game_win / game_fail — the result board of either game
 ## v0.8.4: balloon game — balloon_leak, balloon_pop, balloon_tie, balloon_flyaway (one-shot) and
 ##   balloon_inflate, a loop that plays while the force is rising: set_loop(name, on, pitch).
+## v0.8.4 (revised): game_countdown — tick-tock for the last 10 s of a timed round (both games);
+##   stop_game(name) stops it when the round ends first.
 ## A name with numbered files (name_01, name_02 …) plays one of them at random, never the same twice in a
 ## row. assets/sfx/音效对照.md lists which original file each one was made from.
 
@@ -37,7 +39,8 @@ const SFX_DIR := "res://assets/sfx/"
 const GAME_DB := {"carrot_rock": -8.0, "carrot_pull_out": -3.0, "carrot_crack": -4.0, "carrot_snap": -2.0,
 	"game_win": -5.0, "game_fail": -5.0,   # v0.8.3 (revised)
 	"balloon_inflate": -8.0, "balloon_leak": -6.0, "balloon_pop": -2.0, "balloon_tie": -5.0,
-	"balloon_flyaway": -4.0}   # v0.8.4
+	"balloon_flyaway": -4.0,   # v0.8.4
+	"game_countdown": -6.0}   # v0.8.4 (revised): last 10 s of a timed round
 const LOOP_FADE := 12.0   # v0.8.4: dB per 0.1 s when a loop fades in / out
 const MAX_VARIANTS := 40
 
@@ -147,6 +150,13 @@ func _game_variants(sound: String) -> Array:
 	add_child(p)
 	_game_players[sound] = p
 	return list
+
+
+## v0.8.4 (revised): stop a game sound that is still playing (the countdown when the round ends early).
+func stop_game(sound: String) -> void:
+	if _game_players.has(sound):
+		var p: AudioStreamPlayer = _game_players[sound]
+		p.stop()
 
 
 func play_game(sound: String) -> void:

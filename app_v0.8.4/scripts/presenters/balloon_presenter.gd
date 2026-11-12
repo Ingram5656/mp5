@@ -20,7 +20,7 @@ const ToastHost := preload("res://app_v0.8.4/scripts/views/achievement_toast_hos
 # ---- set by whoever starts the game
 var difficulty := 1
 var lang := "zh"
-var time_limit := 90.0
+var time_limit := 60.0   # v0.8.4 (revised): was 90 s
 ## Real sensor: a node with read() returning {"moment_nm", optional "offaxis_nm", "pull_n"}. null = keyboard.
 var sensor: Node = null
 ## Achievements database, used here for the round history (passed in by the app; created when run alone).
@@ -28,6 +28,8 @@ var db: AchievementDB = null
 
 var model: BalloonModel
 var input: KeyboardSource
+var _countdown_on := false   # v0.8.4 (revised)
+const COUNTDOWN_S := 10.0
 var _last_torque := 0.0   # v0.8.4: inflating sound
 var _rise_rate := 0.0
 const INFLATE_MIN_RATE := 0.015   ## N·m per second: slower than this counts as "not adding force"
@@ -94,6 +96,7 @@ func _process(delta: float) -> void:
 
 	for e in model.frame_events:
 		_on_event(e)
+	_update_countdown_sound()
 	_update_inflate_sound(delta)
 
 	var s := {
@@ -159,6 +162,17 @@ func _update_inflate_sound(delta: float) -> void:
 	get_tree().call_group("mp5_sfx", "set_loop", "balloon_inflate", on, 0.85 + 0.35 * grow)
 
 
+## v0.8.4 (revised): tick-tock for the last COUNTDOWN_S seconds of a timed round; stops when the round ends.
+func _update_countdown_sound() -> void:
+	var running := model.timed and model.phase == BalloonModel.Phase.PLAYING
+	if running and model.time_left <= COUNTDOWN_S and not _countdown_on:
+		_countdown_on = true
+		get_tree().call_group("mp5_sfx", "play_game", "game_countdown")
+	elif _countdown_on and not running:
+		_countdown_on = false
+		get_tree().call_group("mp5_sfx", "stop_game", "game_countdown")
+
+
 func _on_ending_finished(kind: String) -> void:
 	log_file.close()
 	get_tree().call_group("mp5_sfx", "set_loop", "balloon_inflate", false, 1.0)   # v0.8.4
@@ -193,6 +207,8 @@ func _exit() -> void:
 func _exit_tree() -> void:
 	if log_file != null:
 		log_file.close()
+	if is_inside_tree() and _countdown_on:
+		get_tree().call_group("mp5_sfx", "stop_game", "game_countdown")   # v0.8.4 (revised)
 	if is_inside_tree():
 		get_tree().call_group("mp5_sfx", "set_loop", "balloon_inflate", false, 1.0)   # v0.8.4: no sound left behind
 

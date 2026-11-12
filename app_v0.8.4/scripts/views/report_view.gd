@@ -366,7 +366,7 @@ func _build_scores(body: HBoxContainer) -> void:
 	gh.add_theme_constant_override("separation", 16)
 	col.add_child(gh)
 	var passed: bool = rep["passed"]
-	_grade_stamp = Garden.stamp(str(rep["grade"]), passed, 84)
+	_grade_stamp = Garden.stamp(str(rep["grade"]), passed, 112)   # v0.8.4 (revised): bigger grade (was 84)
 	gh.add_child(_grade_stamp)
 	var gv := VBoxContainer.new()
 	gv.size_flags_vertical = Control.SIZE_SHRINK_CENTER

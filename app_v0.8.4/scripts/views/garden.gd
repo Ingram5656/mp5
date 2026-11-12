@@ -299,7 +299,7 @@ static func stamp(grade: String, passed: bool, px := 92) -> Control:
 	ring.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	ring.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	holder.add_child(ring)
-	var l := display_label(grade, int(px * 0.6), col)
+	var l := display_label(grade, int(px * 0.72), col)   # v0.8.4 (revised): letter fills more of the ring (was 0.6)
 	l.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER

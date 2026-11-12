@@ -21,7 +21,7 @@ const ReportPresenter := preload("res://app_v0.8.4/scripts/presenters/report_pre
 var difficulty := 1
 var lang := "zh"
 var cycles_to_win := 6
-var time_limit := 90.0
+var time_limit := 60.0   # v0.8.4 (revised): was 90 s
 ## Real sensor: a node with read() returning {"moment_nm", optional "offaxis_nm", "pull_n"}. null = keyboard.
 var sensor: Node = null
 ## Achievements database (passed in by the app; created here when the scene runs on its own).
@@ -29,6 +29,8 @@ var db: AchievementDB = null
 
 var model: RockingModel
 var input: KeyboardSource
+var _countdown_on := false   # v0.8.4 (revised)
+const COUNTDOWN_S := 10.0
 var _last_abs_m := 0.0   # v0.8.3 (revised): to hear when a push starts
 var log_file: RoundLog
 var view: CarrotView
@@ -97,6 +99,7 @@ func _process(delta: float) -> void:
 
 	for e in model.frame_events:
 		_on_event(e)
+	_update_countdown_sound()
 	for id in model.frame_achievements:
 		_unlock_now(id)
 
@@ -143,6 +146,17 @@ func _on_event(e: String) -> void:
 		view.play_lose(false)
 
 
+## v0.8.4 (revised): tick-tock for the last COUNTDOWN_S seconds of a timed round; stops when the round ends.
+func _update_countdown_sound() -> void:
+	var running := model.timed and model.phase == RockingModel.Phase.PLAYING
+	if running and model.time_left <= COUNTDOWN_S and not _countdown_on:
+		_countdown_on = true
+		get_tree().call_group("mp5_sfx", "play_game", "game_countdown")
+	elif _countdown_on and not running:
+		_countdown_on = false
+		get_tree().call_group("mp5_sfx", "stop_game", "game_countdown")
+
+
 func _on_ending_finished(kind: String) -> void:
 	log_file.close()
 	get_tree().call_group("mp5_sfx", "play_game", "game_win" if kind == "win" else "game_fail")   # v0.8.3 (revised)
@@ -174,6 +188,8 @@ func _exit() -> void:
 func _exit_tree() -> void:
 	if log_file != null:
 		log_file.close()
+	if is_inside_tree() and _countdown_on:
+		get_tree().call_group("mp5_sfx", "stop_game", "game_countdown")   # v0.8.4 (revised)
 
 
 # =====================================================================

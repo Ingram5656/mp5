@@ -8,6 +8,9 @@
   the focus, Esc = Cancel); Quit saves the database and closes the program. `app_view.gd` gains
   `show_confirm()` and the `confirm_answered` signal.
 - Tests: 20 (unchanged).
+- Revised the same day (same version number): bigger grade stamp on the report (112 px, letter 72 % of
+  the ring); timed rounds last 60 s instead of 90 s (both games); `assets/sfx/game_countdown.wav`
+  (tick-tock) plays for the last 10 s of a timed round and stops when the round ends.
 
 Run: `app_v0.8.4/main.tscn`.
 
