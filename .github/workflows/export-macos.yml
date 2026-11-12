@@ -1,0 +1,81 @@
+# Builds a macOS version of the game on GitHub's servers and offers it as a download
+# (Actions → this run → Artifacts). Nothing in the repository is changed by the build:
+# the main scene and the bundle identifier are set only on the build machine's copy.
+#
+# Runs when:
+#   - you start it by hand (Actions → "Export macOS build" → Run workflow; you can pick the version folder),
+#   - a version tag such as v0.8.4 is pushed,
+#   - this file itself is changed.
+name: Export macOS build
+
+on:
+  workflow_dispatch:
+    inputs:
+      app_dir:
+        description: "Version folder to build (e.g. app_v0.8.3)"
+        required: true
+        default: "app_v0.8.3"
+  push:
+    tags: ["v*"]
+    paths: [".github/workflows/export-macos.yml"]
+    branches: ["main"]
+
+env:
+  GODOT_VERSION: "4.7"
+  DEFAULT_APP_DIR: "app_v0.8.3"
+  BUNDLE_ID: "uk.ac.dundee.mp5"
+
+jobs:
+  macos:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Pick the version folder
+        run: |
+          APP_DIR="${{ github.event.inputs.app_dir }}"
+          if [ -z "$APP_DIR" ] && [ "${{ github.ref_type }}" = "tag" ]; then
+            APP_DIR="app_${{ github.ref_name }}"
+          fi
+          [ -z "$APP_DIR" ] && APP_DIR="$DEFAULT_APP_DIR"
+          test -f "$APP_DIR/main.tscn" || { echo "No $APP_DIR/main.tscn in the repository"; exit 1; }
+          echo "APP_DIR=$APP_DIR" >> "$GITHUB_ENV"
+          echo "APP_VERSION=${APP_DIR#app_}" >> "$GITHUB_ENV"
+
+      - name: Download Godot ${{ env.GODOT_VERSION }} and its export templates
+        run: |
+          base="https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable"
+          wget -q "$base/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          wget -q "$base/Godot_v${GODOT_VERSION}-stable_export_templates.tpz"
+          unzip -q "Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          mv "Godot_v${GODOT_VERSION}-stable_linux.x86_64" godot
+          dest="$HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable"
+          mkdir -p "$dest"
+          unzip -q "Godot_v${GODOT_VERSION}-stable_export_templates.tpz"
+          mv templates/* "$dest/"
+          rm -rf templates *.zip *.tpz
+
+      - name: Point the build at ${{ env.APP_DIR }} (build machine only)
+        run: |
+          sed -i "s#^run/main_scene=.*#run/main_scene=\"res://${APP_DIR}/main.tscn\"#" project.godot
+          sed -i "s#^application/bundle_identifier=.*#application/bundle_identifier=\"${BUNDLE_ID}\"#" export_presets.cfg
+          sed -i "s#^application/short_version=.*#application/short_version=\"${APP_VERSION#v}\"#" export_presets.cfg
+          sed -i "s#^application/version=.*#application/version=\"${APP_VERSION#v}\"#" export_presets.cfg
+          grep -n "main_scene" project.godot
+          grep -nE "bundle_identifier|short_version|^application/version" export_presets.cfg
+
+      - name: Import resources
+        run: timeout 600 ./godot --headless --import || true
+
+      - name: Export
+        run: |
+          mkdir -p build
+          ./godot --headless --export-release "macOS" "build/MP5-${APP_VERSION}-macOS.zip"
+          ls -la build
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MP5-${{ env.APP_VERSION }}-macOS
+          path: build/MP5-${{ env.APP_VERSION }}-macOS.zip
+          if-no-files-found: error
