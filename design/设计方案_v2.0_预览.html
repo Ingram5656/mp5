@@ -1,0 +1,428 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>菜园木牌 · 设计样张</title>
+<!-- 字体：标题 ZCOOL KuaiLe（站酷快乐体），正文和读数沿用 Atkinson Hyperlegible Next + Noto Sans SC。离线时回退到本机黑体。 -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;700&family=Noto+Sans+SC:wght@400;700&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* 世界色：来自两个游戏的画面 */
+  --sky: #5cc8f8;
+  --plank: #f7cf8a;
+  --plank-edge: #e3a24a;
+  --paper: #fff4df;
+  --ink: #5e3410;        /* 可可墨：所有描边和正文 */
+  --ink-soft: #9a6a44;   /* 干土色：次要文字、刻度 */
+  /* 动作色 */
+  --carrot: #ff7f1f;
+  --carrot-deep: #c95a0c;
+  /* 状态色：只表示状态 */
+  --leaf: #5fb52a;
+  --leaf-tint: #b9e38f;
+  --sun: #ffc531;
+  --tomato: #e8442e;
+  --line: 3px;           /* 1920 宽时的描边；1152 宽时按比例约 2px，这里按 1152 画 */
+  --display: "ZCOOL KuaiLe", "Noto Sans CJK SC", "Noto Sans SC", sans-serif;
+  --body: "Atkinson Hyperlegible Next", "Noto Sans SC", "Noto Sans CJK SC", sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: #e9f6fd;
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 16px;
+  line-height: 1.5;
+  padding: 32px 16px 64px;
+}
+.doc { max-width: 1152px; margin: 0 auto; }
+.doc > h1 { font-family: var(--display); font-weight: 400; font-size: 39px; margin: 0 0 4px; }
+.doc > p { max-width: 68ch; margin: 0 0 24px; color: var(--ink-soft); }
+figure { margin: 0 0 40px; }
+figcaption { margin: 10px 2px 0; max-width: 70ch; color: var(--ink-soft); font-size: 15px; }
+figcaption b { color: var(--ink); }
+
+/* ---------- 一个屏幕：1152×648，菜园做底 ---------- */
+.screen {
+  position: relative;
+  width: 100%;
+  max-width: 1152px;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border: var(--line) solid var(--ink);
+  border-radius: 14px;
+  background:
+    url("../assets/carrot_game/bg_soil_front.png") center / cover no-repeat,
+    url("../assets/carrot_game/bg_soil_back.png") center / cover no-repeat,
+    url("../assets/carrot_game/bg_fence.png") center / cover no-repeat,
+    url("../assets/carrot_game/bg_sky.png") center / cover no-repeat,
+    var(--sky);
+  container-type: inline-size;
+}
+/* 屏幕内部一律按 1152 宽的像素设计，再整体缩放 */
+.stage {
+  position: absolute; left: 0; top: 0;
+  width: 1152px; height: 648px;
+  transform-origin: 0 0;
+  transform: scale(calc(100cqw / 1152px));
+}
+@supports not (width: 1cqw) { .stage { transform: none; } }
+
+/* ---------- 木牌：所有内容面板都是插在土里的牌子 ---------- */
+.board {
+  position: absolute;
+  border: 26px solid transparent;
+  border-image: url("../assets/carrot_game/ui_result_panel.png") 70 fill / 26px / 0 stretch;
+  padding: 2px 6px;
+}
+.board::before, .board::after {           /* 两根木桩，插进土里 */
+  content: ""; position: absolute; bottom: -78px; width: 22px; height: 64px;
+  background: var(--plank-edge);
+  border: 2px solid var(--ink); border-top: none;
+  border-radius: 0 0 6px 6px;
+  z-index: -1;
+}
+.board::before { left: 18%; }
+.board::after { right: 18%; }
+.board.no-posts::before, .board.no-posts::after { display: none; }
+
+/* 顶部挂牌：应用名 */
+.hanger {
+  position: absolute; left: 28px; top: 14px;
+  display: flex; align-items: center; gap: 14px;
+}
+.title-plank {
+  background: var(--plank);
+  border: 2px solid var(--ink);
+  border-radius: 10px 14px 9px 13px;
+  padding: 2px 16px 4px;
+  font-family: var(--display); font-size: 31px; line-height: 1.25;
+  transform: rotate(-1.5deg);
+}
+.subtitle { font-size: 16px; font-weight: 700; color: var(--ink); background: var(--paper);
+  border: 2px solid var(--ink); border-radius: 999px; padding: 1px 12px; }
+.topright { position: absolute; right: 24px; top: 18px; display: flex; gap: 10px; align-items: center; }
+.status { display: flex; align-items: center; gap: 8px; background: var(--paper); border: 2px solid var(--ink);
+  border-radius: 999px; padding: 3px 12px 3px 8px; font-size: 13px; font-weight: 700; }
+.status i { width: 14px; height: 14px; border-radius: 50%; background: var(--leaf); border: 2px solid var(--ink); }
+.lang { display: flex; border: 2px solid var(--ink); border-radius: 999px; overflow: hidden; background: var(--paper); font-size: 13px; font-weight: 700; }
+.lang span { padding: 3px 10px; }
+.lang span.on { background: var(--ink); color: var(--paper); }
+
+/* ---------- 按钮：贴纸 + 木台 ---------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  font: 700 16px/1 var(--body); color: var(--ink);
+  min-height: 44px; padding: 0 22px;
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  box-shadow: 0 4px 0 var(--ink);
+  cursor: pointer; transition: transform .08s, box-shadow .08s;
+}
+.btn:active, .btn.pressed { transform: translateY(3px); box-shadow: 0 1px 0 var(--ink); }
+.btn.primary { background: var(--carrot); color: #fff; font-size: 20px; min-height: 52px; padding: 0 34px;
+  box-shadow: 0 5px 0 var(--carrot-deep), 0 5px 0 2px var(--ink); }
+.btn.primary:active, .btn.primary.pressed { box-shadow: 0 1px 0 var(--carrot-deep), 0 1px 0 2px var(--ink); }
+.btn:focus-visible { outline: 3px dashed var(--ink); outline-offset: 5px; }
+.btn[disabled] { opacity: .45; box-shadow: none; }
+
+/* 选择：标签（关卡、难度） */
+.tags { display: flex; gap: 10px; flex-wrap: wrap; }
+.tag { font: 700 16px/1 var(--body); padding: 10px 16px; border: 2px solid var(--ink); border-radius: 12px;
+  background: var(--paper); box-shadow: 0 3px 0 var(--ink); }
+.tag.on { background: var(--ink); color: var(--plank); box-shadow: 0 1px 0 var(--ink); transform: translateY(2px); }
+
+/* ---------- 选择页 ---------- */
+.signs { position: absolute; left: 30px; top: 92px; width: 270px; display: flex; flex-direction: column; gap: 14px; }
+.sign { position: relative; background: var(--plank); border: 2px solid var(--ink); border-radius: 12px 16px 12px 14px;
+  padding: 10px 14px 12px; box-shadow: 0 4px 0 var(--plank-edge), 0 4px 0 2px var(--ink); }
+.sign:nth-child(2) { transform: rotate(.8deg); }
+.sign:nth-child(3) { transform: rotate(-.6deg); }
+.sign h3 { margin: 0; font-family: var(--display); font-weight: 400; font-size: 25px; line-height: 1.2; }
+.sign p { margin: 2px 0 0; font-size: 13px; color: var(--ink-soft); }
+.sign.on { background: #fff; border-width: 3px; transform: translateX(10px) rotate(-1deg);
+  box-shadow: 0 4px 0 var(--carrot), 0 4px 0 3px var(--ink); }
+.sign.on::after { content: ""; position: absolute; left: -14px; top: 50%; width: 12px; height: 12px; margin-top: -6px;
+  background: var(--carrot); border: 2px solid var(--ink); border-radius: 50%; }
+.sign.soon { background: #ead2a4; box-shadow: 0 4px 0 #c9a46a, 0 4px 0 2px var(--ink); }
+.sign.soon h3, .sign.soon p { color: var(--ink-soft); }
+.side-btns { display: flex; flex-direction: column; gap: 12px; margin-top: 10px; align-items: flex-start; }
+
+.detail { left: 330px; top: 74px; width: 796px; height: 500px; }
+.detail .inner { display: grid; grid-template-columns: 300px 1fr; gap: 6px 24px; padding: 6px 10px; }
+.detail h2 { grid-column: 1 / -1; margin: 0; font-family: var(--display); font-weight: 400; font-size: 39px; line-height: 1.15; }
+.cover { width: 300px; height: 169px; border: 3px solid var(--ink); border-radius: 14px; overflow: hidden; background: var(--sky); transform: rotate(-1deg); }
+.cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.detail .about { font-size: 16px; line-height: 1.55; margin: 0; max-width: 34em; }
+.field { grid-column: 1 / -1; display: grid; grid-template-columns: 70px 1fr; gap: 12px; align-items: center; }
+.field > span { font-size: 13px; color: var(--ink-soft); font-weight: 700; }
+.diffnote { grid-column: 1 / -1; margin: 0 0 0 82px; font-size: 13px; color: var(--ink-soft); }
+.start { position: absolute; right: 22px; bottom: 10px; }
+
+/* ---------- 入门测试：三块铭牌 ---------- */
+.gauges { left: 40px; top: 84px; width: 1072px; height: 490px; }
+.gauges .row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 26px; padding: 6px; height: 100%; }
+.plate { background: var(--paper); border: 2px solid var(--ink); border-radius: 18px; padding: 12px 16px 14px;
+  display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.plate h3 { margin: 0; font-family: var(--display); font-weight: 400; font-size: 25px; }
+.plate svg { width: 196px; height: 196px; }
+.readout { font: 700 49px/1.05 var(--body); font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+.readout small { font-size: 20px; font-weight: 700; margin-left: 4px; }
+.goal { font-size: 13px; color: var(--ink-soft); }
+.lock { margin-top: auto; width: 100%; display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 700; }
+.lock .track { flex: 1; height: 14px; border: 2px solid var(--ink); border-radius: 999px; background: #fff; overflow: hidden; }
+.lock .track b { display: block; height: 100%; background: var(--leaf); }
+.lock.done { color: #2f6e0f; }
+.hint-line { position: absolute; left: 0; right: 0; bottom: 14px; text-align: center; font-size: 13px; font-weight: 700; color: #fff;
+  text-shadow: 0 1px 0 var(--ink), 0 -1px 0 var(--ink), 1px 0 0 var(--ink), -1px 0 0 var(--ink); }
+
+/* ---------- 评估报告：夹在木牌上的笔记纸 ---------- */
+.report { left: 26px; top: 66px; width: 1100px; height: 520px; }
+.paper { position: absolute; inset: 0; background-color: var(--paper);
+  background-image: linear-gradient(#d7ecf7 1px, transparent 1px), linear-gradient(90deg, #d7ecf7 1px, transparent 1px);
+  background-size: 24px 24px; border: 2px solid var(--ink); border-radius: 6px; padding: 16px 22px;
+  display: grid; grid-template-columns: 1.75fr 1fr; gap: 26px; }
+.clip { position: absolute; top: -20px; left: 50%; width: 120px; height: 34px; margin-left: -60px; z-index: 2;
+  background: #c9cfd4; border: 2px solid var(--ink); border-radius: 8px 8px 14px 14px; }
+.paper h2 { margin: 0; font-family: var(--display); font-weight: 400; font-size: 31px; }
+.paper .meta { font-size: 13px; color: var(--ink-soft); margin: 0 0 8px; }
+.chart { background: #fff; border: 2px solid var(--ink); border-radius: 10px; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 13px; margin-top: 6px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.scores { display: flex; flex-direction: column; gap: 6px; }
+.grade { display: flex; align-items: center; gap: 16px; }
+.stamp { width: 92px; height: 92px; border-radius: 50%; border: 4px solid var(--leaf); color: #3d8a17;
+  display: grid; place-items: center; font: 400 56px/1 var(--display); transform: rotate(-8deg);
+  box-shadow: inset 0 0 0 3px var(--paper), inset 0 0 0 5px var(--leaf); background: rgba(255,255,255,.6); }
+.total { font: 700 31px/1.1 var(--body); }
+.total small { display: block; font-size: 13px; color: var(--ink-soft); font-weight: 700; }
+.dim { display: grid; grid-template-columns: 1fr auto 36px; gap: 2px 10px; align-items: baseline; font-size: 15px; }
+.dim b { font-weight: 700; }
+.dim em { font-style: normal; font-size: 12px; color: var(--ink-soft); }
+.dim .num { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
+.dim .bar { grid-column: 1 / -1; height: 10px; border: 2px solid var(--ink); border-radius: 999px; background: #fff; overflow: hidden; }
+.dim .bar i { display: block; height: 100%; background: var(--ink-soft); }
+.dim .why { grid-column: 1 / -1; font-size: 12px; color: var(--ink-soft); margin-top: -2px; }
+.rep-btns { position: absolute; right: 30px; top: 18px; display: flex; gap: 10px; }
+
+/* ---------- 组件样张 ---------- */
+.specimen { background: var(--paper); border: var(--line) solid var(--ink); border-radius: 14px; padding: 22px 24px;
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 22px 28px; }
+.specimen h4 { margin: 0 0 10px; font-family: var(--display); font-weight: 400; font-size: 20px; }
+.swatches { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.sw { border: 2px solid var(--ink); border-radius: 10px; overflow: hidden; font-size: 12px; background: #fff; }
+.sw i { display: block; height: 38px; border-bottom: 2px solid var(--ink); }
+.sw span { display: block; padding: 3px 6px; line-height: 1.3; }
+.row-gap { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
+.toast { display: flex; gap: 12px; align-items: center; background: var(--plank); border: 2px solid var(--ink); border-radius: 14px;
+  padding: 10px 14px; box-shadow: 0 4px 0 var(--plank-edge), 0 4px 0 2px var(--ink); position: relative; margin-top: 14px; max-width: 330px; }
+.toast::before, .toast::after { content: ""; position: absolute; top: -16px; width: 2px; height: 16px; background: var(--ink); }
+.toast::before { left: 30px; } .toast::after { right: 30px; }
+.toast .ic { width: 52px; height: 52px; flex: none; border: 2px solid var(--ink); border-radius: 12px; background: var(--paper);
+  display: grid; place-items: center; font-size: 28px; }
+.toast b { display: block; font-family: var(--display); font-weight: 400; font-size: 20px; line-height: 1.2; }
+.toast span { font-size: 13px; color: var(--ink-soft); }
+.state-row { display: flex; gap: 10px; flex-wrap: wrap; font-size: 13px; font-weight: 700; }
+.chip { display: inline-flex; align-items: center; gap: 6px; border: 2px solid var(--ink); border-radius: 999px; padding: 3px 10px 3px 6px; background: #fff; }
+.chip i { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--ink); }
+.typeset p { margin: 0 0 6px; }
+.t-display { font-family: var(--display); font-size: 39px; line-height: 1.1; }
+.t-read { font: 700 49px/1 var(--body); font-variant-numeric: tabular-nums; }
+
+@media (max-width: 700px) {
+  body { padding: 20px 16px 48px; }
+  .doc > h1 { font-size: 31px; }
+}
+@media (prefers-reduced-motion: reduce) { .btn { transition: none; } }
+</style>
+</head>
+<body>
+<main class="doc">
+  <h1>菜园木牌</h1>
+  <p>MP5 界面设计方案 v2.0 的样张。界面不再是一台“测量仪器”，而是拔萝卜和兔子的气球所在的那片菜园：页面背景就是菜园，内容写在插进土里的木牌上，所有东西都用和游戏画面相同的可可色粗描边。样张按 1152×648（Godot 窗口）绘制，数字是示意数据。</p>
+
+  <!-- ===================== 1. 游戏选择 ===================== -->
+  <figure>
+    <div class="screen"><div class="stage">
+      <div class="hanger"><div class="title-plank">拔牙训练装置</div><div class="subtitle">游戏选择</div></div>
+      <div class="topright"><div class="status"><i></i>已连接（模拟）</div><div class="lang"><span>EN</span><span class="on">中文</span></div></div>
+
+      <div class="signs">
+        <div class="sign on"><h3>摇牙挑战</h3><p>关卡 A 拔萝卜，关卡 B 兔子的气球</p></div>
+        <div class="sign soon"><h3>拔牙导航</h3><p>三维施力方向（即将推出）</p></div>
+        <div class="sign soon"><h3>精准拔出</h3><p>稳定拉力（即将推出）</p></div>
+        <div class="side-btns">
+          <button class="btn">成就 12 / 20</button>
+          <button class="btn">历史记录</button>
+          <button class="btn">传感器自检</button>
+        </div>
+      </div>
+
+      <div class="board detail">
+        <div class="inner">
+          <h2>摇牙挑战</h2>
+          <div class="cover"><img src="../assets/balloon_game/cover_balloon.png" alt="兔子的气球：兔子用打气筒吹气球，旁边是系着气球的大萝卜"></div>
+          <p class="about">气球随力矩变大。跟着虚线圈把气球慢慢吹到目标大小并保持住，它就会绑到大萝卜上；加力太快会漏气，超过上限会爆。绑好 5 个气球，大萝卜就带着兔子飞走。</p>
+          <div class="field"><span>关卡</span><div class="tags"><span class="tag">关卡 A 拔萝卜</span><span class="tag on">关卡 B 兔子的气球</span></div></div>
+          <div class="field"><span>难度</span><div class="tags"><span class="tag">实习生</span><span class="tag on">见习医生</span><span class="tag">大师牙医</span></div></div>
+          <p class="diffnote">仅虚线圈提示，有倒计时，允许爆 3 次。</p>
+        </div>
+        <button class="btn primary start">开始</button>
+      </div>
+    </div></div>
+    <figcaption><b>游戏选择。</b>保留 v1.1 定下的“左边列表、右边详情”顺序，但三个游戏变成三块路牌，选中的那块被拉出来、底边换成胡萝卜橙；详情写在插在土里的大木牌上。整页唯一的橙色实心按钮是“开始”。</figcaption>
+  </figure>
+
+  <!-- ===================== 2. 入门测试 ===================== -->
+  <figure>
+    <div class="screen"><div class="stage">
+      <div class="hanger"><div class="title-plank">拔牙训练装置</div><div class="subtitle">入门测试</div></div>
+      <div class="topright"><div class="status"><i></i>已连接（模拟）</div><div class="lang"><span>EN</span><span class="on">中文</span></div></div>
+      <div class="board gauges">
+        <div class="row">
+          <div class="plate">
+            <h3>方向</h3>
+            <svg viewBox="0 0 200 200" aria-label="方向表盘，指针在目标扇区内">
+              <circle cx="100" cy="100" r="88" fill="#fff" stroke="#5e3410" stroke-width="4"/>
+              <path d="M100 100 L100 12 A88 88 0 0 1 176.2 56 Z" fill="#5fb52a" stroke="#5e3410" stroke-width="3" stroke-linejoin="round"/>
+              <g stroke="#9a6a44" stroke-width="3" stroke-linecap="round">
+                <line x1="100" y1="16" x2="100" y2="28"/><line x1="184" y1="100" x2="172" y2="100"/><line x1="100" y1="184" x2="100" y2="172"/><line x1="16" y1="100" x2="28" y2="100"/>
+              </g>
+              <line x1="100" y1="100" x2="148" y2="40" stroke="#5e3410" stroke-width="7" stroke-linecap="round"/>
+              <path d="M148 40 l-2 14 l12 -8 z" fill="#ff7f1f" stroke="#5e3410" stroke-width="3" stroke-linejoin="round"/>
+              <circle cx="100" cy="100" r="9" fill="#ff7f1f" stroke="#5e3410" stroke-width="3"/>
+            </svg>
+            <div class="readout">42<small>°</small></div>
+            <div class="goal">目标 30°–60°</div>
+            <div class="lock done"><div class="track"><b style="width:100%"></b></div>已解锁 ✓</div>
+          </div>
+          <div class="plate">
+            <h3>力</h3>
+            <svg viewBox="0 0 200 200" aria-label="力条，正在目标区内保持">
+              <rect x="74" y="12" width="52" height="176" rx="26" fill="#fff" stroke="#5e3410" stroke-width="4"/>
+              <rect x="77" y="66" width="46" height="40" fill="#b9e38f"/>
+              <rect x="77" y="98" width="46" height="88" rx="2" fill="#ff7f1f"/>
+              <line x1="74" y1="66" x2="126" y2="66" stroke="#5e3410" stroke-width="2" stroke-dasharray="5 4"/>
+              <line x1="74" y1="106" x2="126" y2="106" stroke="#5e3410" stroke-width="2" stroke-dasharray="5 4"/>
+              <rect x="74" y="12" width="52" height="176" rx="26" fill="none" stroke="#5e3410" stroke-width="4"/>
+            </svg>
+            <div class="readout">10.5<small>N</small></div>
+            <div class="goal">目标 8–12 N</div>
+            <div class="lock"><div class="track"><b style="width:55%"></b></div>保持中</div>
+          </div>
+          <div class="plate">
+            <h3>力矩</h3>
+            <svg viewBox="0 0 200 200" aria-label="力矩圆环，尚未进入目标区">
+              <circle cx="100" cy="100" r="78" fill="none" stroke="#fff" stroke-width="26"/>
+              <path d="M100 22 A78 78 0 0 1 174.2 76" fill="none" stroke="#b9e38f" stroke-width="26"/>
+              <path d="M100 22 A78 78 0 0 1 145 36" fill="none" stroke="#9a6a44" stroke-width="26"/>
+              <circle cx="100" cy="100" r="91" fill="none" stroke="#5e3410" stroke-width="4"/>
+              <circle cx="100" cy="100" r="65" fill="#fff" stroke="#5e3410" stroke-width="4"/>
+            </svg>
+            <div class="readout">0.08<small>N·m</small></div>
+            <div class="goal">目标 0.15–0.25 N·m</div>
+            <div class="lock"><div class="track"><b style="width:0"></b></div>未解锁</div>
+          </div>
+        </div>
+      </div>
+      <div class="hint-line">键盘：←/→ 方向，↑/↓ 力，Q/E 力矩</div>
+    </div></div>
+    <figcaption><b>入门测试。</b>三个仪表放在三块奶油色铭牌上，读数保持 49 号 Atkinson，仍然是页面里最大的字。目标区平时是嫩叶色，进入并保持时由嫩叶色加深到叶绿；指针和中心钉用胡萝卜橙，表盘和刻度都用可可墨描边。</figcaption>
+  </figure>
+
+  <!-- ===================== 3. 评估报告 ===================== -->
+  <figure>
+    <div class="screen"><div class="stage">
+      <div class="board report no-posts">
+        <div class="clip"></div>
+        <div class="paper">
+          <div>
+            <h2>评估报告：兔子的气球</h2>
+            <p class="meta">2026-11-08 15:02，见习医生，过关</p>
+            <svg class="chart" viewBox="0 0 640 270" width="100%" aria-label="目标轴力矩曲线与标准加力线">
+              <g stroke="#e4eef4" stroke-width="1">
+                <line x1="40" y1="20" x2="630" y2="20"/><line x1="40" y1="75" x2="630" y2="75"/><line x1="40" y1="130" x2="630" y2="130"/><line x1="40" y1="185" x2="630" y2="185"/>
+              </g>
+              <line x1="40" y1="240" x2="630" y2="240" stroke="#5e3410" stroke-width="2"/>
+              <line x1="40" y1="20" x2="40" y2="240" stroke="#5e3410" stroke-width="2"/>
+              <line x1="40" y1="64" x2="630" y2="64" stroke="#e8442e" stroke-width="2" stroke-dasharray="8 6"/>
+              <text x="626" y="58" font-size="12" text-anchor="end" fill="#e8442e" font-weight="700">爆裂上限 0.40</text>
+              <path d="M52 240 L118 130 L160 130 M190 240 L250 108 L292 108 M322 240 L372 152 L414 152 M444 240 L496 98 L538 98 M560 240 L604 141 L626 141" fill="none" stroke="#2e8fc4" stroke-width="2.5" stroke-dasharray="7 5"/>
+              <path d="M52 240 C70 220 92 162 116 133 S150 128 160 131 L172 236 L190 238 C214 200 238 128 252 110 S284 104 292 109 L304 236 L322 238 C342 205 360 160 374 150 S406 150 414 152 L428 236 L444 238 C464 198 482 132 500 96 L506 92 L514 238 L520 238 C522 230 530 200 540 168" fill="none" stroke="#5e3410" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+              <circle cx="506" cy="92" r="6" fill="#e8442e" stroke="#5e3410" stroke-width="2"/>
+              <g stroke="#5fb52a" stroke-width="4" stroke-linecap="round"><line x1="160" y1="118" x2="160" y2="144"/><line x1="292" y1="96" x2="292" y2="122"/><line x1="414" y1="139" x2="414" y2="165"/></g>
+              <g font-size="12" fill="#9a6a44"><text x="36" y="244" text-anchor="end">0</text><text x="36" y="134" text-anchor="end">0.2</text><text x="36" y="24" text-anchor="end">0.4</text>
+                <text x="40" y="260">0 s</text><text x="630" y="260" text-anchor="end">30 s</text></g>
+            </svg>
+            <div class="legend">
+              <span><svg width="22" height="8"><line x1="0" y1="4" x2="22" y2="4" stroke="#5e3410" stroke-width="3"/></svg>本局</span>
+              <span><svg width="22" height="8"><line x1="0" y1="4" x2="22" y2="4" stroke="#2e8fc4" stroke-width="2.5" stroke-dasharray="5 3"/></svg>标准加力线</span>
+              <span><svg width="12" height="12"><circle cx="6" cy="6" r="4.5" fill="#e8442e" stroke="#5e3410" stroke-width="1.5"/></svg>爆掉</span>
+              <span><svg width="8" height="14"><line x1="4" y1="1" x2="4" y2="13" stroke="#5fb52a" stroke-width="3"/></svg>绑好</span>
+            </div>
+          </div>
+          <div class="scores">
+            <div class="grade"><div class="stamp">A</div><div class="total">86.4<small>综合评分（满分 100）</small></div></div>
+            <div class="dim"><b>安全</b><em>权重 25%</em><span class="num">49</span><div class="bar"><i style="width:49%"></i></div><div class="why">爆掉 1 次，峰值 0.43 N·m</div></div>
+            <div class="dim"><b>精准</b><em>权重 25%</em><span class="num">91</span><div class="bar"><i style="width:91%"></i></div><div class="why">与标准线误差 0.012 N·m</div></div>
+            <div class="dim"><b>稳定</b><em>权重 20%</em><span class="num">85</span><div class="bar"><i style="width:85%"></i></div><div class="why">一次保持成功 80%</div></div>
+            <div class="dim"><b>加力平稳</b><em>权重 15%</em><span class="num">97</span><div class="bar"><i style="width:97%"></i></div><div class="why">加力速度匹配 96%，没有漏气</div></div>
+            <div class="dim"><b>效率</b><em>权重 10%</em><span class="num">100</span><div class="bar"><i style="width:100%"></i></div><div class="why">每个气球用时 7.1 秒</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="rep-btns"><button class="btn primary" style="min-height:44px;font-size:16px;padding:0 22px">保存到文件夹</button><button class="btn">关闭</button></div>
+    </div></div>
+    <figcaption><b>评估报告。</b>报告是一张夹在木牌上的方格笔记纸：画曲线时方格就是背景网格。本局曲线用可可墨实线，标准线用深天蓝虚线，红色只给上限和爆掉，绿色只给“绑好”。评级是一枚斜盖的圆章：过关时为叶绿，未过关的 F 为番茄红。分项条用干土色，因为它们表示的是分数，不是状态。</figcaption>
+  </figure>
+
+  <!-- ===================== 4. 组件样张 ===================== -->
+  <figure>
+    <div class="specimen">
+      <div>
+        <h4>颜色</h4>
+        <div class="swatches">
+          <div class="sw"><i style="background:#5cc8f8"></i><span>天空蓝 #5CC8F8<br>页面底色</span></div>
+          <div class="sw"><i style="background:#f7cf8a"></i><span>木牌 #F7CF8A<br>面板</span></div>
+          <div class="sw"><i style="background:#fff4df"></i><span>奶油纸 #FFF4DF<br>铭牌、报告</span></div>
+          <div class="sw"><i style="background:#5e3410"></i><span>可可墨 #5E3410<br>描边、正文</span></div>
+          <div class="sw"><i style="background:#9a6a44"></i><span>干土 #9A6A44<br>次要文字</span></div>
+          <div class="sw"><i style="background:#ff7f1f"></i><span>胡萝卜 #FF7F1F<br>主按钮、指针</span></div>
+          <div class="sw"><i style="background:#5fb52a"></i><span>叶绿 #5FB52A<br>在目标区</span></div>
+          <div class="sw"><i style="background:#ffc531"></i><span>向日葵 #FFC531<br>等待、接近上限</span></div>
+          <div class="sw"><i style="background:#e8442e"></i><span>番茄 #E8442E<br>失误、故障</span></div>
+        </div>
+      </div>
+      <div class="typeset">
+        <h4>字体</h4>
+        <p class="t-display">拔牙训练装置</p>
+        <p style="font-size:13px;color:var(--ink-soft)">ZCOOL KuaiLe：只用于 20 号以上的标题、牌子上的名字、评级章</p>
+        <p class="t-read">0.21 N·m</p>
+        <p style="font-size:13px;color:var(--ink-soft)">Atkinson Hyperlegible Next + Noto Sans SC：正文、按钮和所有读数</p>
+      </div>
+      <div>
+        <h4>按钮与选择</h4>
+        <div class="row-gap"><button class="btn primary">开始</button><button class="btn primary pressed">开始</button></div>
+        <div class="row-gap" style="margin-top:16px"><button class="btn">历史记录</button><button class="btn pressed">历史记录</button><button class="btn" disabled>即将推出</button></div>
+        <div class="tags" style="margin-top:16px"><span class="tag">实习生</span><span class="tag on">见习医生</span></div>
+      </div>
+      <div>
+        <h4>状态与提示</h4>
+        <div class="state-row">
+          <span class="chip"><i style="background:#5fb52a"></i>已连接</span>
+          <span class="chip"><i style="background:#ffc531"></i>连接中</span>
+          <span class="chip"><i style="background:#e8442e"></i>断线</span>
+        </div>
+        <div class="toast"><div class="ic">🥕</div><div><b>第一根萝卜</b><span>哇，真的出来了！</span></div></div>
+      </div>
+    </div>
+    <figcaption><b>组件。</b>按下按钮时它会沉下 3 px，表示“按到了”；这是界面里唯一的常驻动效。成就提示是一块用两根绳子吊下来的小木牌。</figcaption>
+  </figure>
+</main>
+</body>
+</html>

@@ -1,0 +1,210 @@
+extends Control
+## View — the app shell (v0.5.4; look unchanged from main.gd v0.5.3): header (title, subtitle, sensor
+## status, language), the five pages and the dialog. Passive: it only shows what the app presenter tells
+## it and reports what the user did through signals. Text keys come from the presenter; the view
+## translates them for the current language.
+
+signal language_selected(lang: String)
+signal modal_closed
+
+const P := preload("res://app_v0.5.4/scripts/views/palette.gd")
+const UiKit := preload("res://app_v0.5.4/scripts/views/ui_kit.gd")
+const ConnectView := preload("res://app_v0.5.4/scripts/views/connect_view.gd")
+const EntryTestView := preload("res://app_v0.5.4/scripts/views/entry_test_view.gd")
+const SelectView := preload("res://app_v0.5.4/scripts/views/select_view.gd")
+const AchievementsView := preload("res://app_v0.5.4/scripts/views/achievements_view.gd")
+const HistoryView := preload("res://app_v0.5.4/scripts/views/history_view.gd")
+
+var kit: UiKit
+var subtitle: Label
+var status_dot: Panel
+var status_label: Label
+var lang_buttons: Array = []
+var connect_page: ConnectView
+var test_page: EntryTestView
+var select_page: SelectView
+var ach_page: AchievementsView
+var hist_page: HistoryView
+var modal_layer: Control = null
+var _modal: Dictionary = {}       # title, body, button keys and body args (args already plain values)
+var _subtitle_key := "sub_entry"
+var _status := ["st_not_connected", "idle"]
+## Tone of a status → colour (colour only for state). idle: steel, busy: caution, ok: slate, fault: fault.
+const TONES := {"idle": P.STEEL, "busy": P.CAUTION, "ok": P.SLATE, "plain": P.SLATE, "fault": P.FAULT}
+
+
+## config: lang, entry_targets (see EntryTestView.build), game_count, difficulty_count, ach_filter
+func setup(config: Dictionary) -> void:
+	kit = UiKit.new()
+	kit.lang = config["lang"]
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	theme = kit.build_theme()
+
+	var bg := ColorRect.new()
+	bg.color = P.PORCELAIN
+	bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	add_child(bg)
+
+	var margin := MarginContainer.new()
+	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	margin.add_theme_constant_override("margin_left", 40)
+	margin.add_theme_constant_override("margin_right", 40)
+	margin.add_theme_constant_override("margin_top", 28)
+	margin.add_theme_constant_override("margin_bottom", 28)
+	add_child(margin)
+
+	var root := VBoxContainer.new()
+	root.add_theme_constant_override("separation", 18)
+	margin.add_child(root)
+
+	# header: title left, sensor state and language right
+	var header := HBoxContainer.new()
+	header.add_theme_constant_override("separation", 20)
+	root.add_child(header)
+	var titles := VBoxContainer.new()
+	titles.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	titles.add_theme_constant_override("separation", 0)
+	titles.add_child(kit.tlabel("app_title", P.FS_TITLE, P.SLATE, true))
+	subtitle = kit.label("", P.FS_BODY, P.STEEL)
+	titles.add_child(subtitle)
+	header.add_child(titles)
+
+	var status_row := HBoxContainer.new()
+	status_row.add_theme_constant_override("separation", 8)
+	status_row.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	status_dot = Panel.new()
+	status_dot.custom_minimum_size = Vector2(10, 10)
+	status_dot.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	status_row.add_child(status_dot)
+	status_label = kit.label("", P.FS_BODY, P.SLATE)
+	status_row.add_child(status_label)
+	header.add_child(status_row)
+
+	var lang_row := HBoxContainer.new()
+	lang_row.add_theme_constant_override("separation", 4)
+	lang_row.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	header.add_child(lang_row)
+	var lg := ButtonGroup.new()
+	for pair in [["en", "EN"], ["zh", "中文"]]:
+		var b: Button = kit.toggle(pair[1], lg)
+		b.custom_minimum_size = Vector2(56, 34)
+		var code: String = pair[0]
+		b.pressed.connect(func(): language_selected.emit(code))
+		lang_row.add_child(b)
+		lang_buttons.append(b)
+
+	root.add_child(kit.hrule())
+
+	var pages := Control.new()
+	pages.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	root.add_child(pages)
+	connect_page = ConnectView.new()
+	connect_page.build(kit)
+	pages.add_child(connect_page)
+	test_page = EntryTestView.new()
+	test_page.build(kit, config["entry_targets"])
+	test_page.visible = false
+	pages.add_child(test_page)
+	select_page = SelectView.new()
+	select_page.build(kit, config["game_count"], config["difficulty_count"])
+	select_page.visible = false
+	pages.add_child(select_page)
+	ach_page = AchievementsView.new()
+	ach_page.build(kit, config["ach_filter"])
+	ach_page.visible = false
+	pages.add_child(ach_page)
+	hist_page = HistoryView.new()
+	hist_page.build(kit)
+	hist_page.visible = false
+	pages.add_child(hist_page)
+
+
+# ------------------------------------------------------------------ language
+## Re-translate everything that is static; the presenter then re-sends anything dynamic.
+func set_language(lang: String) -> void:
+	kit.apply_language(lang)
+	for i in range(lang_buttons.size()):
+		lang_buttons[i].set_pressed_no_signal((i == 0) == (lang == "en"))
+	subtitle.text = kit.t(_subtitle_key)
+	status_label.text = kit.t(_status[0])
+	connect_page.relocalize()
+	test_page.relocalize()
+	select_page.relocalize()
+	if modal_layer != null and not _modal.is_empty():
+		_render_modal()
+
+
+# ------------------------------------------------------------------ header and pages
+## tone: "idle", "busy", "ok", "fault"
+func set_sensor_status(key: String, tone: String) -> void:
+	_status = [key, tone]
+	status_label.text = kit.t(key)
+	status_dot.add_theme_stylebox_override("panel", kit.box(TONES.get(tone, P.STEEL), Color(0, 0, 0, 0), 0, 5))
+
+
+## page: "connect", "test", "select", "achievements", "history"
+func show_page(page: String, sub_key: String) -> void:
+	connect_page.visible = page == "connect"
+	test_page.visible = page == "test"
+	select_page.visible = page == "select"
+	ach_page.visible = page == "achievements"
+	hist_page.visible = page == "history"
+	_subtitle_key = sub_key
+	subtitle.text = kit.t(sub_key)
+
+
+# ------------------------------------------------------------------ dialog
+## body_args: plain values, or text keys (Strings) that are translated too.
+func show_modal(title_key: String, body_key: String, button_key: String, body_args: Array = []) -> void:
+	_modal = {"title": title_key, "body": body_key, "button": button_key, "args": body_args}
+	_render_modal()
+
+
+func is_modal_open() -> bool:
+	return modal_layer != null
+
+
+func _render_modal() -> void:
+	if modal_layer != null:
+		modal_layer.queue_free()
+	modal_layer = Control.new()
+	modal_layer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	add_child(modal_layer)
+	var dim := ColorRect.new()
+	dim.color = Color(P.SLATE, 0.35)
+	dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	modal_layer.add_child(dim)
+	var center := CenterContainer.new()
+	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	modal_layer.add_child(center)
+	var panel := PanelContainer.new()
+	panel.add_theme_stylebox_override("panel", kit.box(P.SURFACE, P.RULE, 1, 0, 32, 28))
+	panel.custom_minimum_size = Vector2(540, 0)
+	center.add_child(panel)
+	var v := VBoxContainer.new()
+	v.add_theme_constant_override("separation", 16)
+	panel.add_child(v)
+	v.add_child(kit.label(kit.t(_modal["title"]), P.FS_TITLE, P.SLATE, true))
+	var args: Array = []
+	for a in _modal["args"]:
+		args.append(kit.t(a) if a is String else a)
+	var b: Label = kit.label(kit.fmt(_modal["body"], args), P.FS_BODY, P.SLATE)
+	b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	b.custom_minimum_size = Vector2(476, 0)
+	b.add_theme_constant_override("line_spacing", 6)
+	v.add_child(b)
+	var row := HBoxContainer.new()
+	row.alignment = BoxContainer.ALIGNMENT_END
+	v.add_child(row)
+	var btn: Button = kit.button(kit.t(_modal["button"]), "primary")
+	btn.pressed.connect(_on_modal_button)
+	row.add_child(btn)
+	btn.grab_focus.call_deferred()
+
+
+func _on_modal_button() -> void:
+	if modal_layer != null:
+		modal_layer.queue_free()
+		modal_layer = null
+	_modal = {}
+	modal_closed.emit()

@@ -1,0 +1,7 @@
+[gd_scene format=3 uid="uid://te0kph3dns6i"]
+
+[ext_resource type="Script" uid="uid://b7mcq5tf6wdva" path="res://app_v0.5.4/scripts/presenters/app_presenter.gd" id="1_app"]
+
+[node name="App" type="Node" unique_id=1464893845]
+script = ExtResource("1_app")
+metadata/_edit_horizontal_guides_ = [-77.0]
